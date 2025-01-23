@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import ReturnHomeSectionButton from "../components/returnHomeSectionButton";
 import ReturnGameSectionButton from "../components/returnGameSectionButton";
 
@@ -6,24 +6,24 @@ const BIRD_HEIGHT = 28;
 const BIRD_WIDTH = 33;
 const WALL_HEIGHT = 550;
 const DEFAULT_WALL_WIDTH = 400;
+const BIRD_X_POSITION = 100;
 
-// Difficulty settings
 const DIFFICULTY_SETTINGS = {
   easy: {
     gravity: 6,
-    objSpeed: 4,
+    objSpeed: 3,
     objGap: 250,
     jumpForce: 60
   },
   medium: {
     gravity: 8,
-    objSpeed: 5,
+    objSpeed: 4,
     objGap: 200,
     jumpForce: 50
   },
   hard: {
     gravity: 10,
-    objSpeed: 7,
+    objSpeed: 6,
     objGap: 160,
     jumpForce: 45
   }
@@ -37,20 +37,24 @@ function WingnoYaiba() {
   const [objHeight, setObjHeight] = useState(0);
   const [objPos, setObjPos] = useState(DEFAULT_WALL_WIDTH);
   const [score, setScore] = useState(0);
+  const [highScore, setHighScore] = useState(() => {
+    const savedHighScore = localStorage.getItem('wingNoYaibaHighScore');
+    return savedHighScore ? parseInt(savedHighScore, 10) : 0;
+  });
   const [wallWidth, setWallWidth] = useState(DEFAULT_WALL_WIDTH);
   const [difficulty, setDifficulty] = useState('medium');
+  const [gameOver, setGameOver] = useState(false);
 
-  // Get current difficulty settings
+  const birdRef = useRef(null);
+  const topPipeRef = useRef(null);
+  const bottomPipeRef = useRef(null);
+
   const currentSettings = DIFFICULTY_SETTINGS[difficulty];
 
-  // Adjust the wall width based on screen size
+  // Resize effect
   useEffect(() => {
     const updateWidth = () => {
-      if (window.innerWidth >= 768) {
-        setWallWidth(450);
-      } else {
-        setWallWidth(DEFAULT_WALL_WIDTH);
-      }
+      setWallWidth(window.innerWidth >= 768 ? 450 : DEFAULT_WALL_WIDTH);
     };
 
     window.addEventListener("resize", updateWidth);
@@ -59,79 +63,133 @@ function WingnoYaiba() {
     return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
-  // Gravity effect for the bird
+  // Precise Collision Detection
+  const checkCollision = useCallback(() => {
+  if (!birdRef.current || !topPipeRef.current || !bottomPipeRef.current)
+    { 
+      return false;
+    }
+
+    const birdRect = birdRef.current.getBoundingClientRect();
+    const topPipeRect = topPipeRef.current.getBoundingClientRect();
+    const bottomPipeRect = bottomPipeRef.current.getBoundingClientRect();
+
+    const hasTopPipeCollision = !(
+      birdRect.right < topPipeRect.left || 
+      birdRect.left > topPipeRect.right || 
+      birdRect.bottom < topPipeRect.top || 
+      birdRect.top > topPipeRect.bottom
+    );
+
+    const hasBottomPipeCollision = !(
+      birdRect.right < bottomPipeRect.left || 
+      birdRect.left > bottomPipeRect.right || 
+      birdRect.bottom < bottomPipeRect.top || 
+      birdRect.top > bottomPipeRect.bottom
+    );
+
+    return hasTopPipeCollision || hasBottomPipeCollision;
+  }, []);
+
+  // Gravity effect
   useEffect(() => {
     let intVal;
-    if (isStart && birdpos < WALL_HEIGHT - BIRD_HEIGHT) {
+    if (isStart && birdpos < WALL_HEIGHT - BIRD_HEIGHT && !gameOver) {
       intVal = setInterval(() => {
-        setBirdpos((birdpos) => birdpos + currentSettings.gravity);
+        setBirdpos((prev) => {
+          const newPos = prev + currentSettings.gravity;
+          
+          // Floor collision
+          if (newPos >= WALL_HEIGHT - BIRD_HEIGHT) {
+            triggerGameOver();
+            return newPos;
+          }
+          
+          // Collision check
+          if (checkCollision()) {
+            triggerGameOver();
+          }
+          
+          return newPos;
+        });
       }, 24);
     }
     return () => clearInterval(intVal);
-  });
+  }, [isStart, birdpos, currentSettings, gameOver, checkCollision]);
 
-  // Object movement logic
+  // Object movement and scoring
   useEffect(() => {
     let objval;
-    if (isStart && objPos >= -OBJ_WIDTH) {
+    if (isStart && objPos >= -OBJ_WIDTH && !gameOver) {
       objval = setInterval(() => {
-        setObjPos((objPos) => objPos - currentSettings.objSpeed);
+        setObjPos((prev) => prev - currentSettings.objSpeed);
       }, 24);
 
-      return () => {
-        clearInterval(objval);
-      };
-    } else {
+      return () => clearInterval(objval);
+    } else if (isStart && !gameOver) {
       setObjPos(wallWidth);
       setObjHeight(Math.floor(Math.random() * (WALL_HEIGHT - currentSettings.objGap)));
-      if (isStart) setScore((score) => score + 7);
+      setScore((prev) => prev + 7);
     }
-  }, [isStart, objPos, wallWidth, currentSettings]);
+  }, [isStart, objPos, wallWidth, currentSettings, gameOver]);
 
-  // Collision detection
+  // Update highscore
   useEffect(() => {
-    let topObj = birdpos >= 0 && birdpos < objHeight;
-    let bottomObj =
-      birdpos <= WALL_HEIGHT &&
-      birdpos >= WALL_HEIGHT - (WALL_HEIGHT - currentSettings.objGap - objHeight) - BIRD_HEIGHT;
+    if (score > highScore) {
+      setHighScore(score);
+      localStorage.setItem('wingNoYaibaHighScore', score.toString());
+    }
+  }, [score, highScore]);
 
-    if (
-      objPos >= OBJ_WIDTH &&
-      objPos <= OBJ_WIDTH + 80 &&
-      (topObj || bottomObj)
-    ) {
-      setIsStart(false);
+  // Game over function
+  const triggerGameOver = useCallback(() => {
+    setIsStart(false);
+    setGameOver(true);
+  }, []);
+
+  // Click handler for bird movement
+  const handler = () => {
+    if (!isStart) {
+      setIsStart(true);
+      setGameOver(false);
       setBirdpos(300);
       setScore(0);
+      setObjPos(wallWidth);
+    } else if (gameOver) {
+      setGameOver(false);
+      setBirdpos(300);
+      setScore(0);
+      setObjPos(wallWidth);
+    } else if (birdpos < BIRD_HEIGHT) {
+      setBirdpos(0);
+    } else {
+      setBirdpos((prev) => prev - currentSettings.jumpForce);
     }
-  }, [isStart, birdpos, objHeight, objPos, currentSettings]);
-
-  // Click handler for the bird's movement
-  const handler = () => {
-    if (!isStart) setIsStart(true);
-    else if (birdpos < BIRD_HEIGHT) setBirdpos(0);
-    else setBirdpos((birdpos) => birdpos - currentSettings.jumpForce);
   };
 
-  // Handle difficulty change
+  // Difficulty change handler
   const changeDifficulty = (newDifficulty) => {
     setDifficulty(newDifficulty);
     setIsStart(false);
+    setGameOver(false);
     setBirdpos(300);
     setScore(0);
     setObjPos(DEFAULT_WALL_WIDTH);
   };
 
   return (
-    <div className="h-screen flex flex-col justify-center items-center bg-gray-800 text-white">
+    <div className="flex flex-col justify-center items-center bg-gray-800 text-white max-h-screen h-[100svh] overflow-hidden">  
       <div className="flex flex-row justify-between items-center h-[10vh] w-[80%]">
         <ReturnHomeSectionButton/>
         <ReturnGameSectionButton/>
       </div>
       <div className="text-4xl font-bold mt-3 font-Pixel-Army">Wings no Yaiba</div>
-      <div className="text-lg font-bold my-3">Score: {score}</div>
       
-      {/* Difficulty selector */}
+      <div className="flex gap-2 my-3">
+        <div className="text-lg font-bold">Score: {score}</div>
+        <div className="text-lg font-bold">High Score: {highScore}</div>
+      </div>
+      
       <div className="flex gap-4 mb-4">
         {Object.keys(DIFFICULTY_SETTINGS).map((diff) => (
           <button
@@ -158,13 +216,14 @@ function WingnoYaiba() {
         }}
         onClick={handler}
       >
-        {!isStart && (
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black text-white text-center p-2 rounded-lg text-lg font-semibold cursor-pointer">
-            Click To Start
+        {(!isStart || gameOver) && (
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-600 text-white text-center p-2 rounded-lg text-lg font-semibold cursor-pointer z-10">
+            {gameOver ? "Game Over! Click to Restart" : "Click To Start"}
           </div>
         )}
 
         <div
+          ref={topPipeRef}
           className="absolute"
           style={{
             height: `${objHeight}px`,
@@ -177,12 +236,13 @@ function WingnoYaiba() {
         ></div>
 
         <div
+          ref={birdRef}
           className="absolute"
           style={{
             height: `${BIRD_HEIGHT}px`,
             width: `${BIRD_WIDTH}px`,
             top: `${birdpos}px`,
-            left: `100px`,
+            left: `${BIRD_X_POSITION}px`,
             backgroundImage: "url('/images/shinobuNoBg.png')",
             backgroundSize: "cover",
             backgroundPosition: "center",
@@ -191,6 +251,7 @@ function WingnoYaiba() {
         ></div>
 
         <div
+          ref={bottomPipeRef}
           className="absolute"
           style={{
             height: `${WALL_HEIGHT - currentSettings.objGap - objHeight}px`,

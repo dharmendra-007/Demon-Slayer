@@ -188,7 +188,7 @@ function SlayerBattleGrid() {
 
   return (
     <>
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white">
+    <div className="flex flex-col items-center justify-center bg-gray-800 text-white max-h-screen h-[100svh] overflow-hidden">
     <div className="flex justify-between items-start w-[80%] h-[10vh] sm:h-[15vh]">
       <ReturnHomeSectionButton />
       <ReturnGameSectionButton />
