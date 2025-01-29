@@ -3,7 +3,7 @@ import "./Box.css";
 
 const Box = () => {
   return (
-    <div className="relative inset-0 h-[80vh] md:h-screen w-full overflow-x-hidden">
+    <div className="relative inset-0 h-[85vh] md:h-screen w-full overflow-x-hidden">
       <div className="h-full w-full bg-[#D2D1D3] flex-col items-center justify-center">
         <p className="text-center h-auto pt-16 bento-title !capitalize text-[2.1rem] sm:text-[4.5rem] !font-Sleepy-Moody !leading-[3rem] px-4">
           I'm Inside The Box 🙇‍♀️

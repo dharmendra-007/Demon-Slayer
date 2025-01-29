@@ -16,14 +16,14 @@ const DIFFICULTY_SETTINGS = {
     jumpForce: 60
   },
   medium: {
-    gravity: 8,
+    gravity: 7,
     objSpeed: 4,
     objGap: 200,
     jumpForce: 50
   },
   hard: {
-    gravity: 10,
-    objSpeed: 6,
+    gravity: 8,
+    objSpeed: 5,
     objGap: 160,
     jumpForce: 45
   }
@@ -42,7 +42,7 @@ function WingnoYaiba() {
     return savedHighScore ? parseInt(savedHighScore, 10) : 0;
   });
   const [wallWidth, setWallWidth] = useState(DEFAULT_WALL_WIDTH);
-  const [difficulty, setDifficulty] = useState('medium');
+  const [difficulty, setDifficulty] = useState('easy');
   const [gameOver, setGameOver] = useState(false);
 
   const birdRef = useRef(null);
@@ -178,12 +178,12 @@ function WingnoYaiba() {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center bg-gray-800 text-white max-h-screen h-[100svh] overflow-hidden">  
+    <div className="flex flex-col justify-center items-center bg-gray-800 text-white max-h-screen h-[100dvh] overflow-hidden">  
       <div className="flex flex-row justify-between items-center h-[10vh] w-[80%]">
         <ReturnHomeSectionButton/>
         <ReturnGameSectionButton/>
       </div>
-      <div className="text-4xl font-bold mt-3 font-Pixel-Army">Wings no Yaiba</div>
+      <div className="text-4xl font-bold mt-2 font-Pixel-Army">Wings no Yaiba</div>
       
       <div className="flex gap-2 my-3">
         <div className="text-lg font-bold">Score: {score}</div>
