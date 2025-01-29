@@ -164,6 +164,14 @@ export const hashiras = [
 export const Developers = [
   {
     id: 1,
+    name: "Sonakshi Pradhan",
+    designation: "Software Engineer",
+    image:
+      "/images/sonakshi.jpg",
+    githubUrl: "https://github.com/PSonakshi"
+  },
+  {
+    id: 2,
     name: "Dharmendra Mahanta",
     designation: "Software Engineer",
     image:
@@ -171,7 +179,7 @@ export const Developers = [
     githubUrl: "https://github.com/dharmendra-007"
   },
   {
-    id: 2,
+    id: 3,
     name: "K Suman Patra",
     designation: "Product Manager",
     image:
@@ -179,7 +187,7 @@ export const Developers = [
     githubUrl: "https://github.com/sumanpatra006"
   },
   {
-    id: 3,
+    id: 4,
     name: "Gyanaranjan Patra",
     designation: "Data Scientist",
     image:
@@ -187,7 +195,7 @@ export const Developers = [
     githubUrl: "https://github.com/Gyannnnn"
   },
   {
-    id: 4,
+    id: 5,
     name: "Jay prakash Tanty",
     designation: "Data Scientist",
     image:
@@ -195,7 +203,7 @@ export const Developers = [
     githubUrl: "https://github.com/Jay-Prakash-Tanty"
   },
   {
-    id: 5,
+    id: 6,
     name: "Pratyush Kumar",
     designation: "Data Scientist",
     image:
