@@ -2,7 +2,7 @@ import React from 'react'
 
 const Loader = () => {
   return (
-    <div className="flex justify-center items-center bg-gradient-to-r from-[#FAFF89] to-[#917A71] overflow-hidden max-h-screen h-[100svh]">
+    <div className="flex justify-center items-center bg-gradient-to-r from-[#FAFF89] to-[#917A71] overflow-hidden max-h-screen h-[100dvh]">
       <img
         src="/images/loader.gif"
         alt="loading.."

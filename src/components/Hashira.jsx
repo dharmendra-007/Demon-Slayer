@@ -14,7 +14,7 @@ export default function Hashira() {
     <ReactLenis root>
       <main className="bg-black" ref={container}>
         <>
-          <section className="text-black h-[70vh] w-full bg-[#D2D1D3]  grid place-content-center ">
+          <section className="text-black h-[70vh] w-full bg-[#D2D1D3]  grid place-content-center pb-4">
           <div className=' text-center font-anime py-10 text-[2.5rem]'>Our blades dance with purpose. <br />We are the <Cover> Hashiras!</Cover> </div>
           </section>
         </>
