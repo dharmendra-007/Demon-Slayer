@@ -10,22 +10,22 @@ const BIRD_X_POSITION = 100;
 
 const DIFFICULTY_SETTINGS = {
   easy: {
-    gravity: 6,
+    gravity: 5,
     objSpeed: 3,
     objGap: 250,
     jumpForce: 60
   },
   medium: {
-    gravity: 7,
+    gravity: 6,
     objSpeed: 4,
     objGap: 200,
     jumpForce: 50
   },
   hard: {
-    gravity: 8,
+    gravity: 6,
     objSpeed: 5,
-    objGap: 160,
-    jumpForce: 45
+    objGap: 170,
+    jumpForce: 60
   }
 };
 
@@ -250,17 +250,17 @@ function WingnoYaiba() {
           }}
         ></div>
 
-        <div
-          ref={bottomPipeRef}
-          className="absolute"
-          style={{
-            height: `${WALL_HEIGHT - currentSettings.objGap - objHeight}px`,
-            width: `${OBJ_WIDTH}px`,
-            left: `${objPos}px`,
-            top: `${WALL_HEIGHT - (objHeight + (WALL_HEIGHT - currentSettings.objGap - objHeight))}px`,
-            backgroundImage: "url('/images/pipe-green.png')",
-          }}
-        ></div>
+<div
+  ref={bottomPipeRef}
+  className="absolute"
+  style={{
+    height: `${WALL_HEIGHT - currentSettings.objGap - objHeight}px`,
+    width: `${OBJ_WIDTH}px`,
+    left: `${objPos}px`,
+    top: `${objHeight + currentSettings.objGap}px`,
+    backgroundImage: "url('/images/pipe-green.png')",
+  }}
+></div>
       </div>
     </div>
   );
